@@ -14,22 +14,6 @@ using CustomDistributionAPI;
 
 namespace DifferentCanvasMaterials
 {
-    public class InitializePatch
-    {
-        internal static void Postfix(NetworkPrefab __instance)
-        {
-            switch (__instance.Hash)
-            {
-                case 34570u: // This is Thin Cloth Medium Square
-                    PhysicalMaterialPart physicalMaterialPart = __instance.gameObject.GetComponent<PhysicalMaterialPart>();
-                    typeof(PhysicalMaterialPart).GetField("materialDistribution", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(physicalMaterialPart, Core.canvasMaterialDistribution);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     public class Core : MelonMod
     {
         public static Distribution canvasMaterialDistribution;
@@ -51,7 +35,11 @@ namespace DifferentCanvasMaterials
             typeof(Distribution.BaseItem).GetField("noAttributeValue", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(item_canvas, 1f);
             typeof(Distribution.BaseItem).GetField("multipliers", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(item_canvas, new AttributeCurveRange[] { });
             canvasMaterialDistribution.GetType().GetField("items", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(canvasMaterialDistribution, new List<Distribution.Item> { item_canvas });
-            HarmonyInstance.Patch(AccessTools.Method(typeof(NetworkPrefab), "Initialize"), postfix: new HarmonyMethod(typeof(InitializePatch), nameof(InitializePatch.Postfix)));
+            GameObject canvas = (GameObject)Resources.Load("network prefabs/crafting/crafting materials prefabs/Thin Cloth Medium Square");
+            PhysicalMaterialPart physicalMaterialPart = canvas.GetComponent<PhysicalMaterialPart>();
+            typeof(PhysicalMaterialPart).GetField("materialDistribution", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(physicalMaterialPart, Core.canvasMaterialDistribution);
+            GameObject oreSidePouchAttachment = (GameObject)Resources.Load("network prefabs/props/inventory/Ore Side Pouch Attachment");
+            oreSidePouchAttachment.transform.Find("Mesh").Find("ore_bag_attachment_cloth_cover").gameObject.SetActive(false);
         }
     }
 }
